@@ -39,8 +39,9 @@
   data-userpic="true"
   data-radius="10"
   data-request-access="write"
-  data-onauth="onTelegramAuth(user)">
+  data-onauth="onTelegramAuth">
 </script>
+
 
 
   <div id="user"></div>
@@ -48,6 +49,7 @@
 
 <script>
   function onTelegramAuth(user) {
+      console.log("TELEGRAM USER:", user);
     fetch("https://teligramloginbackend.onrender.com/api/auth/telegram", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
