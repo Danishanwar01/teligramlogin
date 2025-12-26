@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Telegram Login</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .card {
+      background: #020617;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+    img {
+      border-radius: 50%;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Login with Telegram</h2>
+
+  <!-- Telegram Login Widget -->
+  <script async src="https://telegram.org/js/telegram-widget.js?22"
+    data-telegram-login="ghantekabot"
+    data-size="large"
+    data-userpic="true"
+    data-radius="10"
+    data-request-access="write"
+    data-onauth="onTelegramAuth">
+  </script>
+
+  <div id="user"></div>
+</div>
+
+<script>
+  function onTelegramAuth(user) {
+    fetch("http://localhost:5000/api/auth/telegram", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        document.getElementById("user").innerHTML = `
+          <p>Welcome, ${data.user.name}</p>
+          <img src="${data.user.photo}" width="80"/>
+        `;
+      } else {
+        alert("Login failed");
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
