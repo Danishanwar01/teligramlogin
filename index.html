@@ -81,5 +81,15 @@
     //   window.open('https://oauth.telegram.org/auth?bot_id=8248803686&origin=teligramlogin.vercel.app', '_self');
     // }
   </script>
+  <script>
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
+
+  if (token) {
+    localStorage.setItem("telegram_token", token);
+    console.log("✅ Telegram login success");
+  }
+</script>
+
 </body>
 </html>
