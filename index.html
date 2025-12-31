@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <title>Telegram Login</title>
+
   <style>
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       background: #0f172a;
       color: white;
       display: flex;
@@ -14,26 +15,56 @@
       height: 100vh;
       margin: 0;
     }
+
     .card {
       background: #020617;
       padding: 30px;
-      border-radius: 12px;
+      border-radius: 14px;
       text-align: center;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      width: 320px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
     }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
     .login-btn {
       margin: 20px 0;
     }
+
     #user {
       margin-top: 20px;
     }
+
     img {
       border-radius: 50%;
-      margin-top: 15px;
+      margin-top: 12px;
     }
+
     .error {
       color: #ff6b6b;
       margin-top: 10px;
+    }
+
+    button {
+      background: #ef4444;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background: #dc2626;
+    }
+
+    .muted {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 18px;
     }
   </style>
 </head>
@@ -41,13 +72,13 @@
 <body>
   <div class="card">
     <h2>🔐 Login with Telegram</h2>
-    <p>Click the button below to login</p>
-    
-    <div class="login-btn">
-      <!-- Telegram Widget -->
-      <script async 
+    <p>Fast. Secure. No passwords.</p>
+
+    <!-- Telegram Login Widget -->
+    <div class="login-btn" id="loginBox">
+      <script async
         src="https://telegram.org/js/telegram-widget.js?22"
-        data-telegram-login="raniindumatibot"
+        data-telegram-login="evolvedgamesbot"
         data-size="large"
         data-userpic="true"
         data-radius="10"
@@ -55,41 +86,57 @@
         data-request-access="write">
       </script>
     </div>
-    
+
+    <!-- User Info -->
     <div id="user"></div>
+
+    <!-- Error -->
     <div id="error" class="error"></div>
-    
-    <p style="margin-top: 20px; font-size: 12px; color: #94a3b8;">
-      Make sure you're logged into Telegram
-    </p>
+
+    <p class="muted">Make sure you’re logged into Telegram</p>
   </div>
 
   <script>
-    // Debug information
-    console.log("Telegram Login Widget Loading...");
-    
-    // Check if widget loaded
+    const backend = "https://teligramloginbackend-1.onrender.com";
+
+    // Check login status
+    fetch(`${backend}/api/me`, {
+      credentials: "include"
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.loggedIn) {
+        document.getElementById("loginBox").style.display = "none";
+
+        document.getElementById("user").innerHTML = `
+          <h3>Welcome, ${data.user.name}</h3>
+          ${data.user.photo ? `<img src="${data.user.photo}" width="80" />` : ""}
+          <p>@${data.user.username || "no-username"}</p>
+          <button onclick="logout()">Logout</button>
+        `;
+      }
+    })
+    .catch(() => {
+      document.getElementById("error").innerText = "Unable to check login status";
+    });
+
+    // Logout
+    function logout() {
+      fetch(`${backend}/api/logout`, {
+        method: "POST",
+        credentials: "include"
+      }).then(() => {
+        location.reload();
+      });
+    }
+
+    // Widget debug check
     setTimeout(() => {
       if (!document.querySelector('iframe[src*="telegram.org"]')) {
-        document.getElementById('error').innerHTML = 
-          'Widget not loading. Check domain settings in BotFather.';
+        document.getElementById("error").innerText =
+          "Telegram widget not loading. Check BotFather domain settings.";
       }
     }, 3000);
-    
-    // Alternative method: Direct redirect (if widget fails)
-    // function manualLogin() {
-    //   window.open('https://oauth.telegram.org/auth?bot_id=8248803686&origin=teligramlogin.vercel.app', '_self');
-    // }
   </script>
-  <script>
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("token");
-
-  if (token) {
-    localStorage.setItem("telegram_token", token);
-    console.log("✅ Telegram login success");
-  }
-</script>
-
 </body>
 </html>
