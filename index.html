@@ -96,18 +96,29 @@
     <p class="muted">Make sure you’re logged into Telegram</p>
   </div>
 
-  <script>
-    const backend = "https://teligramloginbackend-1.onrender.com";
+ <script>
+  const backend = "https://teligramloginbackend-1.onrender.com";
 
-    // Check login status
-    fetch(`${backend}/api/me`, {
-      credentials: "include"
-    })
-    .then(res => res.json())
-    .then(data => {
+  // Get token from URL
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
+  if (token) {
+    localStorage.setItem("telegram_token", token);
+    history.replaceState({}, "", "/"); // clean URL
+  }
+
+  // Check login
+  async function checkLogin() {
+    const token = localStorage.getItem("telegram_token");
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${backend}/api/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
       if (data.loggedIn) {
         document.getElementById("loginBox").style.display = "none";
-
         document.getElementById("user").innerHTML = `
           <h3>Welcome, ${data.user.name}</h3>
           ${data.user.photo ? `<img src="${data.user.photo}" width="80" />` : ""}
@@ -115,28 +126,18 @@
           <button onclick="logout()">Logout</button>
         `;
       }
-    })
-    .catch(() => {
+    } catch {
       document.getElementById("error").innerText = "Unable to check login status";
-    });
-
-    // Logout
-    function logout() {
-      fetch(`${backend}/api/logout`, {
-        method: "POST",
-        credentials: "include"
-      }).then(() => {
-        location.reload();
-      });
     }
+  }
 
-    // Widget debug check
-    setTimeout(() => {
-      if (!document.querySelector('iframe[src*="telegram.org"]')) {
-        document.getElementById("error").innerText =
-          "Telegram widget not loading. Check BotFather domain settings.";
-      }
-    }, 3000);
-  </script>
+  checkLogin();
+
+  function logout() {
+    localStorage.removeItem("telegram_token");
+    location.reload();
+  }
+</script>
+
 </body>
 </html>
