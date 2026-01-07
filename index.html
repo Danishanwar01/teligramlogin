@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram Login - @a4sizebot</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background: #f0f2f5; }
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 80px; background: #f0f2f5; }
         h1 { color: #0088cc; }
     </style>
 </head>
@@ -13,34 +13,16 @@
     <h1>Welcome to My Website</h1>
     <p>Telegram se login karein:</p>
 
-    <!-- Telegram Login Widget -->
-    <div style="margin: 30px auto; width: 300px;">
-        <script async src="https://telegram.org/js/telegram-widget.js?22"
-            data-telegram-login="a4sizebot"   
-            data-size="large"
-            data-onauth="onTelegramAuth(user)"
-            data-request-access="write">
-        </script>
-    </div>
-
-    <div id="user-info" style="margin-top: 30px;"></div>
-
-    <script>
-        function onTelegramAuth(user) {
-           
-            document.getElementById('user-info').innerHTML = `
-                <h2>Login Successful!</h2>
-                <p><strong>Name:</strong> ${user.first_name} ${user.last_name || ''}</p>
-                <p><strong>Username:</strong> @${user.username || 'N/A'}</p>
-                <p><strong>ID:</strong> ${user.id}</p>
-                ${user.photo_url ? `<img src="${user.photo_url}" style="border-radius:50%; width:120px;">` : ''}
-            `;
-
-         
-            fetch('/auth/telegram/callback?' + new URLSearchParams(user))
-                .then(res => res.text())
-                .then(html => console.log('Backend response:', html));
-        }
+    <!-- Simple Widget - Direct backend callback -->
+    <script async src="https://telegram.org/js/telegram-widget.js?22"
+        data-telegram-login="a4sizebot"
+        data-size="large"
+        data-auth-url="/auth/telegram/callback"
+        data-request-access="write">
     </script>
+
+    <div style="margin-top: 50px; color: gray;">
+        Login karne ke baad success page pe details dikhega.
+    </div>
 </body>
 </html>
